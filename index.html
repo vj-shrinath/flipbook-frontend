@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flipbook Viewer</title>
+
+  <!-- Flipbook plugin CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dflip/dist/dflip.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dflip/dist/themify-icons.min.css" />
+
+  <style>
+    body {
+      margin: 0;
+      background: #eee;
+    }
+    #flipbookContainer {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="flipbookContainer"></div>
+
+  <!-- jQuery and Flipbook plugin -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dflip/dist/dflip.min.js"></script>
+
+  <script>
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    function loadFlipbook(pdfUrl, rtlMode = false) {
+      const options = {
+        height: "100vh",
+        direction: rtlMode ? 2 : 1,
+        backgroundColor: "#ccc",
+        zoomChange: function (isZoomed) {
+          document.body.style.overflow = isZoomed ? "hidden" : "auto";
+        }
+      };
+      $("#flipbookContainer").empty();
+      $("#flipbookContainer").flipBook(pdfUrl, options);
+    }
+
+    // Get the ID from the URL
+    const pdfId = getQueryParam('id');
+    if (pdfId) {
+      fetch(`https://flipbook-backend.onrender.com/api/get-pdf?id=${pdfId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            loadFlipbook(data.pdfUrl);
+          } else {
+            alert("PDF not found.");
+          }
+        })
+        .catch(err => {
+          console.error("Fetch error:", err);
+          alert("Error loading PDF.");
+        });
+    } else {
+      alert("No PDF ID provided in URL.");
+    }
+  </script>
+
+</body>
+</html>
